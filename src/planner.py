@@ -104,6 +104,8 @@ def mapInfoCallback(msg):
 	mapInfo = msg
 
 def planner():
+	global haveInitial
+	global haveGoal
     # Initialize node
 	rospy.init_node('global_planner', anonymous=True)
 	# Create publisher
@@ -127,8 +129,8 @@ def planner():
 		path = Path()
 		path = search()
 		path.header.frame_id = "map"
-
-
+		#set the goal and init to zero
+		haveGoal = 0
         # Publish the path continuously
 		pathPub.publish(path)	
 
