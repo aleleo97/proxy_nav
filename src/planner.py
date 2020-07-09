@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-#from tf import euler_from_quaternion
+#from ._tf2 import *
 import math
 import rospy
 import array
@@ -12,6 +12,7 @@ import time
 from sympy import *
 from opt import ConvexOpt
 from model import DiscretizeandLinearizeGeneric
+from std_srvs.srv import Empty, EmptyResponse 
 
 # --- Globals ---- 
 # Position
@@ -103,14 +104,30 @@ def mapInfoCallback(msg):
 	global mapInfo
 	mapInfo = msg
 
+def service_callback(msg):
+    global haveGoal
+    rospy.loginfo("Waiting for initial and goal poses")
+    while haveGoal == 0:
+        pass  
+    # Set rate
+    path = Path()
+    path = search()
+    path.header.frame_id = "map"
+    #set the goal and init to zero
+    haveGoal = 0
+    # Publish the path continuously
+    global pathPub
+    pathPub.publish(path)
+    return EmptyResponse()
+
 def planner():
-	global haveInitial
-	global haveGoal
     # Initialize node
 	rospy.init_node('global_planner', anonymous=True)
 	# Create publisher
+	global pathPub
 	pathPub = rospy.Publisher('/path_proxy', Path, queue_size=1)
-	
+	#create service
+	my_service = rospy.Service('/call_proxy', Empty , service_callback)
 	# Create subscribers
 	odomSub = rospy.Subscriber('odom', Odometry, odomCallback)
 	initSub = rospy.Subscriber('initialpose', PoseWithCovarianceStamped, initCallback)
@@ -120,19 +137,8 @@ def planner():
 	
 	
 	# Set rate
-	r = rospy.Rate(10) # 10 Hz
-	while not rospy.is_shutdown():
-		rospy.loginfo("Waiting for initial and goal poses")
-		while haveGoal == 0:
-			pass  
-        # Set rate
-		path = Path()
-		path = search()
-		path.header.frame_id = "map"
-		#set the goal and init to zero
-		haveGoal = 0
-        # Publish the path continuously
-		pathPub.publish(path)	
+	r = rospy.spin() # 10 Hz
+		
 
 
 def search():
@@ -173,7 +179,7 @@ def search():
     uw = np.array( [u1,u2])
     angle_goal = quaternion_to_euler(goal.pose.orientation.x,goal.pose.orientation.y,goal.pose.orientation.z,goal.pose.orientation.w)
     #define the goal  position and the condition initial of the velocity
-    x_fin = [goal.pose.position.x,goal.pose.position.y,angle_goal[0]]
+    x_fin = [goal.pose.position.x,goal.pose.position.y,angle_goal[0]*180/3.14]
     u_in = [0,0]
     #set the start time 
     start = time.time()
@@ -191,7 +197,6 @@ def search():
         opt_conv = True
         xout,uout = cvx.CVXOPT(opt_pow,opt_conv)
         uw = uout
-
     done = time.time()
     passed = done - start
     #print("time passed to find a solution: " + passed)
