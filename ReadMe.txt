@@ -9,7 +9,7 @@ math
 
 #How to use:
 - launch a GAZEBO simulation with a map of a robot 
-- launch a mapping algorithm in order to provide the robot a map_metadata topic
+- launch a navigation algorithm in order to provide the robot a map_metadata topic (amcl_demo for example)
 - launch the proxy that will listen to the initial pose and goal that you can provide for example in rviz
 
 #Details:
