@@ -50,7 +50,7 @@ class ConvexOpt():
     #trajectory limitation 
     for t in range(0,self.N-1):
       #discrete trajectory with virtual control 
-        constr += [ xv[:,t+1] == self.Ad_list[t]*xv[:,t] + self.Bd_list[t] * uv[:,t] + self.Cd_list[t]]
+        constr += [ xv[:,t+1] == self.Ad_list[t]@xv[:,t] + self.Bd_list[t]@uv[:,t] + self.Cd_list[t]]
         #norm(hog(:,k)) <= hogb(k)
         constr += [cp.norm(hog[:,t]) <= hogb[t]]
 

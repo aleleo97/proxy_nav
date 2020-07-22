@@ -115,6 +115,7 @@ def service_callback(msg):
     path.header.frame_id = "map"
     #set the goal and init to zero
     haveGoal = 0
+    haveInitial = 0
     # Publish the path continuously
     global pathPub
     pathPub.publish(path)
@@ -155,9 +156,13 @@ def search():
     x[n_states]
     #You can change the number of states not the name
     n_states = Idx('n_states', 3)
-    angle_init = quaternion_to_euler(init.pose.orientation.x,init.pose.orientation.y,init.pose.orientation.z,init.pose.orientation.w)
-    # steady state conditions
-    x_init = [init.pose.position.x,init.pose.position.y,angle_init[0]]
+    if(haveInitial > 0):
+        angle_init = quaternion_to_euler(init.pose.orientation.x,init.pose.orientation.y,init.pose.orientation.z,init.pose.orientation.w)
+        # steady state conditions
+        x_init = [init.pose.position.x,init.pose.position.y,angle_init[0]]
+    else : 
+        angle_init = quaternion_to_euler(pos.pose.orientation.x,pos.pose.orientation.y,pos.pose.orientation.z,pos.pose.orientation.w)
+        x_init = [pos.pose.position.x,pos.pose.position.y,angle_init[0]]  
     u_ss = [1,1]
     # final time
     tf = 10 #(seconds)
