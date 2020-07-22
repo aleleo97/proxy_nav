@@ -7,12 +7,26 @@ sympy
 numpy
 math
 
-#How to use:
+# How to use:
 - launch a GAZEBO simulation with a map of a robot 
-- launch a mapping algorithm in order to provide the robot a map_metadata topic
-- launch the proxy that will listen to the initial pose and goal that you can provide for example in rviz
+```
+roslaunch husky_gazebo husky_playpen.launch
+```
+-run the proxy code with the python3 environment
+```
+rosrun proxy_nav planner.py
+```
+- launch a navigation algorithm in order to provide the robot a map_metadata topic (amcl_demo for example)
+```
+roslaunch husky_navigation amcl_demo.launch
+```
 
-#Details:
+- launch the proxy that will listen to the initial pose and goal that you can provide for example in rviz
+```
+rosrun rviz rviz
+```
+
+# Details:
 the algoritmh is a service that can be called with an EMPTY srv by the global planner plugin.
 this service will receive the request, will subcrive the initial position and the goal position and then calculate the trajectory by the convex optimization method.
 THe parameters that can be setted are the number of Successive approssimation of convex optimization and the resolution of the path.
